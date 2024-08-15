@@ -57,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
       end: DateTime.now());
   Account? _account;
   Category? _category;
+  bool _showingIncomeOnly = false; // New state variable
+  bool _showingExpenseOnly = false;
 
   void openAddPaymentPage(PaymentType type) async {
     Navigator.of(context)
@@ -78,12 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _fetchTransactions({Category? category}) async {
+  void _fetchTransactions() async {
     List<Payment> trans;
 
-    if (category != null) {
+    if (_showingIncomeOnly) {
       trans = await _paymentDao.find(
-          range: _range, category: category, account: _account);
+          range: _range, type: PaymentType.debit, account: _account, category: _category);
+    } else if (_showingExpenseOnly) {
+      trans = await _paymentDao.find(
+          range: _range, type: PaymentType.credit, account: _account, category: _category);
     } else {
       trans = await _paymentDao.find(
           range: _range, account: _account, category: _category);
@@ -231,76 +236,94 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: ThemeColors.success.withOpacity(0.2),
+                    child: InkWell(
+                  onTap: () {
+                    setState(() {
+                     _showingIncomeOnly = !_showingIncomeOnly; // Toggle showing income
+                        _showingExpenseOnly = false; // Hide expense only
+                        _fetchTransactions();
+                    });
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: ThemeColors.success.withOpacity(0.2),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text.rich(TextSpan(children: [
+                              //TextSpan(text: TextStyle(color: ThemeColors.success)),
+                              TextSpan(
+                                  text: "Income",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600)),
+                            ])),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            CurrencyText(
+                              _income,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeColors.success),
+                            )
+                          ],
                         ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text.rich(TextSpan(children: [
-                                //TextSpan(text: TextStyle(color: ThemeColors.success)),
-                                TextSpan(
-                                    text: "Income",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600)),
-                              ])),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              CurrencyText(
-                                _income,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: ThemeColors.success),
-                              )
-                            ],
-                          ),
-                        ))),
+                      )),
+                )),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          color: ThemeColors.error.withOpacity(0.2),
+                    child: InkWell(
+                  onTap: () {
+                    setState(() {
+                     _showingExpenseOnly = !_showingExpenseOnly; // Toggle showing expense
+                        _showingIncomeOnly = false; // Hide income only
+                        _fetchTransactions();
+                    });
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: ThemeColors.error.withOpacity(0.2),
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text.rich(TextSpan(children: [
+                              //TextSpan(text: "▲", style: TextStyle(color: ThemeColors.error)),
+                              TextSpan(
+                                  text: "Expense",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600)),
+                            ])),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            CurrencyText(
+                              _expense,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeColors.error),
+                            )
+                          ],
                         ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text.rich(TextSpan(children: [
-                                //TextSpan(text: "▲", style: TextStyle(color: ThemeColors.error)),
-                                TextSpan(
-                                    text: "Expense",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600)),
-                              ])),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              CurrencyText(
-                                _expense,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: ThemeColors.error),
-                              )
-                            ],
-                          ),
-                        ))),
+                      )),
+                )),
               ],
             ),
           ),

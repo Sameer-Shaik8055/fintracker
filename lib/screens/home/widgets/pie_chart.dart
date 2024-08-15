@@ -4,7 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ExpensePieChart extends StatefulWidget {
-  const ExpensePieChart({super.key});
+  
+
+  const ExpensePieChart({super.key, });
 
   @override
   State<ExpensePieChart> createState() => _ExpensePieChartState();
@@ -33,13 +35,23 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final sections = _buildPieChartSections(_categories);
 
     return AspectRatio(
-      aspectRatio: 1,
+      aspectRatio: 1.5,
       child: sections.isNotEmpty
           ? PieChart(
               PieChartData(
                 pieTouchData: PieTouchData(
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    // Handle touch events if needed
+                    if (event is FlTapUpEvent) {
+                      final touchedSection = pieTouchResponse!.touchedSection;
+                      if (touchedSection != null) {
+                        // Access the category information from the touchedSection
+                        final categoryIndex =
+                            touchedSection.touchedSectionIndex;
+                        final clickedCategory = _categories[categoryIndex];
+                        print('Clicked category: ${clickedCategory.name}');
+                        //widget.fetchTransactions(clickedCategory);// Replace with your desired action
+                      }
+                    }
                   },
                 ),
                 borderData: FlBorderData(
