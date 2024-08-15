@@ -14,6 +14,7 @@ import 'package:fintracker/widgets/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_date_timeline/easy_date_timeline.dart';
 
 String greeting() {
   var hour = DateTime.now().hour;
@@ -44,6 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
   double _income = 0;
   double _expense = 0;
   //double _savings = 0;
+
+  DateTime _focusDate = DateTime.now();
+
   DateTimeRange _range = DateTimeRange(
       start: DateTime.now().subtract(Duration(days: DateTime.now().day - 1)),
       end: DateTime.now());
@@ -184,6 +188,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ]),
           ),
+
+          /*
+
+            Horizontal Date picker is added to select a single date
+
+          */
+          EasyInfiniteDateTimeLine(
+            firstDate: DateTime(2023),
+            focusDate: _focusDate,
+            lastDate: DateTime.now(),
+            onDateChange: (selectedDate) {
+              setState(() {
+                _focusDate = selectedDate;
+                _range = DateTimeRange(start: selectedDate, end: selectedDate);
+                _fetchTransactions();
+              });
+            },
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Row(
@@ -204,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text.rich(TextSpan(children: [
-                                //TextSpan(text: "▼", style: TextStyle(color: ThemeColors.success)),
+                                //TextSpan(text: TextStyle(color: ThemeColors.success)),
                                 TextSpan(
                                     text: "Income",
                                     style: TextStyle(
@@ -297,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
         ],
       )),
-          /**
+      /**
            * Buttons to add income and expense
            */
       floatingActionButton: Row(
