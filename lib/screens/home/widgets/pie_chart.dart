@@ -30,23 +30,30 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
 
   @override
   Widget build(BuildContext context) {
+    final sections = _buildPieChartSections(_categories);
+
     return AspectRatio(
       aspectRatio: 1,
-      child: PieChart(
-        PieChartData(
-          pieTouchData: PieTouchData(
-            touchCallback: (FlTouchEvent event, pieTouchResponse) {
-              // Handle touch events if needed
-            },
-          ),
-          borderData: FlBorderData(
-            show: false,
-          ),
-          sectionsSpace: 2,
-          centerSpaceRadius: 16,
-          sections: _buildPieChartSections(_categories),
-        ),
-      ),
+      child: sections.isNotEmpty
+          ? PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    // Handle touch events if needed
+                  },
+                ),
+                borderData: FlBorderData(
+                  show: false,
+                ),
+                sectionsSpace: 2,
+                centerSpaceRadius: 16,
+                sections: sections,
+              ),
+            )
+          : const SizedBox(
+              // Display a message or alternative widget when there's no data
+              height: 0, width: 0,
+            ),
     );
   }
 
@@ -54,33 +61,39 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final totalExpense = categories.fold<double>(0,
         (previousValue, element) => previousValue + (element.expense as num));
 
-    return categories.map((category) {
-      final percentage = (category.expense! / totalExpense) * 100;
-      return PieChartSectionData(
-        color: category.color,
-        value: percentage,
-        title: '${percentage.toStringAsFixed(0)}%\n${category.expense}',
-        radius: 100,
-        titleStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        badgeWidget: Container(
-          width: 34, // Adjust the size as needed
-          height: 34,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: category.color,
+    // Check if total expense is greater than zero
+    if (totalExpense > 0) {
+      return categories.map((category) {
+        final percentage = (category.expense! / totalExpense) * 100;
+        return PieChartSectionData(
+          color: category.color,
+          value: percentage,
+          title: '${percentage.toStringAsFixed(0)}%\n${category.expense}',
+          radius: 100,
+          titleStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          child: Icon(
-            category.icon,
-            color: Colors.white, // Adjust icon color if needed
-            size: 18, // Adjust icon size as needed
+          badgeWidget: Container(
+            width: 34, // Adjust the size as needed
+            height: 34,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: category.color,
+            ),
+            child: Icon(
+              category.icon,
+              color: Colors.white, // Adjust icon color if needed
+              size: 18, // Adjust icon size as needed
+            ),
           ),
-        ),
-        badgePositionPercentageOffset: .98,
-      );
-    }).toList();
+          badgePositionPercentageOffset: .98,
+        );
+      }).toList();
+    } else {
+      // If total expense is zero, return an empty list
+      return [];
+    }
   }
 }
