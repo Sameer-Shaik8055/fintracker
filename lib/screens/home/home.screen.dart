@@ -49,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _expense = 0;
   List<double> _monthlyExpenses = List.generate(12, (index) => 0.0);
   Account? _selectedAccount;
+  Category? _selectedCategory;
 
   //double _savings = 0;
 
@@ -86,31 +87,43 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Payment> trans;
 
     // Filter based on showing income/expense only and selected account
+    print(_selectedCategory);
+    if(_selectedCategory==null){
+      trans = await _paymentDao.find(range: _range);
+    }
     if (_showingIncomeOnly) {
       trans = await _paymentDao.find(
         range: _range,
         type: PaymentType.debit,
-        account: _selectedAccount ?? _account, // Use the selected account
-        category: _category,
+        account:
+            _selectedAccount ?? _account, // Use the selected account (optional)
+        category: _selectedCategory, // Filter by selected category (mandatory)
       );
     } else if (_showingExpenseOnly) {
       trans = await _paymentDao.find(
         range: _range,
         type: PaymentType.credit,
-        account: _selectedAccount ?? _account, // Use the selected account
-        category: _category,
+        account:
+            _selectedAccount ?? _account, // Use the selected account (optional)
+        category: _selectedCategory, // Filter by selected category (mandatory)
       );
     } else {
-      // If no filtering by income/expense, filter by account only
-      if (_selectedAccount != null) {
+      // If no filtering by income/expense
+      if (_selectedCategory != null) {
+        // Filter by category only if a category is selected
         trans = await _paymentDao.find(
           range: _range,
-          account: _selectedAccount ?? _account, // Use the selected account
-          category: _category,
+          category: _selectedCategory,
         );
-      } else {
-        // If no account selected, fetch all transactions (unchanged)
-        trans = await _paymentDao.find(range: _range, category: _category);
+      } else if (_selectedAccount != null) {
+        // If no category selected, filter by account
+        trans = await _paymentDao.find(
+          range: _range,
+          account: _selectedAccount // Use the selected account (optional)
+        );
+      } else  {
+        // If no filters applied, fetch all transactions (unchanged)
+        trans = await _paymentDao.find(range: _range);
       }
     }
 
@@ -142,6 +155,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedAccount = account;
 
+      _fetchTransactions();
+    });
+  }
+
+  void onCategorySelected(Category? category) {
+    setState(() {
+      _selectedCategory = category;
       _fetchTransactions();
     });
   }
@@ -358,7 +378,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          const ExpensePieChart(),
+          ExpensePieChart(
+            onCategorySelected: onCategorySelected,
+          ),
           ExpenseLineChart(
             monthlyExpenses: _monthlyExpenses,
           ),

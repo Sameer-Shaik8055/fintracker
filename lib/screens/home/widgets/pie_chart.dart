@@ -4,9 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ExpensePieChart extends StatefulWidget {
-  
+  final Function(Category?) onCategorySelected;
 
-  const ExpensePieChart({super.key, });
+  const ExpensePieChart({super.key, required this.onCategorySelected});
 
   @override
   State<ExpensePieChart> createState() => _ExpensePieChartState();
@@ -33,6 +33,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
   @override
   Widget build(BuildContext context) {
     final sections = _buildPieChartSections(_categories);
+    bool _clicked = false;
 
     return AspectRatio(
       aspectRatio: 1.5,
@@ -48,8 +49,13 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                         final categoryIndex =
                             touchedSection.touchedSectionIndex;
                         final clickedCategory = _categories[categoryIndex];
-                        print('Clicked category: ${clickedCategory.name}');
-                        //widget.fetchTransactions(clickedCategory);// Replace with your desired action
+
+                        _clicked = !_clicked;
+                        if (_clicked) {
+                          widget.onCategorySelected(clickedCategory);
+                        } else {
+                          widget.onCategorySelected(null);
+                        }
                       }
                     }
                   },
