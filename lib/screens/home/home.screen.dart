@@ -6,12 +6,14 @@ import 'package:fintracker/events.dart';
 import 'package:fintracker/model/account.model.dart';
 import 'package:fintracker/model/category.model.dart';
 import 'package:fintracker/model/payment.model.dart';
+import 'package:fintracker/screens/home/widgets/line_chart.dart';
 import 'package:fintracker/screens/home/widgets/pie_chart.dart';
 import 'package:fintracker/screens/home/widgets/account_slider.dart';
 import 'package:fintracker/screens/home/widgets/payment_list_item.dart';
 import 'package:fintracker/screens/payment_form.screen.dart';
 import 'package:fintracker/theme/colors.dart';
 import 'package:fintracker/widgets/currency.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -45,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Account> _accounts = [];
   double _income = 0;
   double _expense = 0;
+  List<double> _monthlyExpenses = List.generate(12, (index) => 0.0);
   //double _savings = 0;
 
   DateTime _focusDate = DateTime.now();
@@ -75,14 +78,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _fetchTransactions() async {
-    List<Payment> trans = await _paymentDao.find(
-        range: _range, category: _category, account: _account);
+  void _fetchTransactions({Category? category}) async {
+    List<Payment> trans;
+
+    if (category != null) {
+      trans = await _paymentDao.find(
+          range: _range, category: category, account: _account);
+    } else {
+      trans = await _paymentDao.find(
+          range: _range, account: _account, category: _category);
+    }
+
     double income = 0;
     double expense = 0;
+    List<double> monthlyExpenses = List.generate(12, (index) => 0.0);
     for (var payment in trans) {
       if (payment.type == PaymentType.credit) income += payment.amount;
-      if (payment.type == PaymentType.debit) expense += payment.amount;
+      if (payment.type == PaymentType.debit) {
+        expense += payment.amount;
+        DateTime paymentDate = payment.datetime;
+        monthlyExpenses[paymentDate.month - 1] += payment.amount;
+      }
     }
 
     //fetch accounts
@@ -93,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _income = income;
       _expense = expense;
       _accounts = accounts;
+      _monthlyExpenses = monthlyExpenses;
     });
   }
 
@@ -288,6 +305,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const ExpensePieChart(),
+          ExpenseLineChart(
+            monthlyExpenses: _monthlyExpenses,
+          ),
           _payments.isNotEmpty
               ? ListView.separated(
                   padding: EdgeInsets.zero,
