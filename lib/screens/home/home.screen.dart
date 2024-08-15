@@ -13,7 +13,7 @@ import 'package:fintracker/screens/home/widgets/payment_list_item.dart';
 import 'package:fintracker/screens/payment_form.screen.dart';
 import 'package:fintracker/theme/colors.dart';
 import 'package:fintracker/widgets/currency.dart';
-import 'package:fl_chart/fl_chart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
   double _income = 0;
   double _expense = 0;
   List<double> _monthlyExpenses = List.generate(12, (index) => 0.0);
+  Account? _selectedAccount;
+
   //double _savings = 0;
 
   DateTime _focusDate = DateTime.now();
@@ -83,15 +85,33 @@ class _HomeScreenState extends State<HomeScreen> {
   void _fetchTransactions() async {
     List<Payment> trans;
 
+    // Filter based on showing income/expense only and selected account
     if (_showingIncomeOnly) {
       trans = await _paymentDao.find(
-          range: _range, type: PaymentType.debit, account: _account, category: _category);
+        range: _range,
+        type: PaymentType.debit,
+        account: _selectedAccount ?? _account, // Use the selected account
+        category: _category,
+      );
     } else if (_showingExpenseOnly) {
       trans = await _paymentDao.find(
-          range: _range, type: PaymentType.credit, account: _account, category: _category);
+        range: _range,
+        type: PaymentType.credit,
+        account: _selectedAccount ?? _account, // Use the selected account
+        category: _category,
+      );
     } else {
-      trans = await _paymentDao.find(
-          range: _range, account: _account, category: _category);
+      // If no filtering by income/expense, filter by account only
+      if (_selectedAccount != null) {
+        trans = await _paymentDao.find(
+          range: _range,
+          account: _selectedAccount ?? _account, // Use the selected account
+          category: _category,
+        );
+      } else {
+        // If no account selected, fetch all transactions (unchanged)
+        trans = await _paymentDao.find(range: _range, category: _category);
+      }
     }
 
     double income = 0;
@@ -106,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    //fetch accounts
+    // fetch accounts
     List<Account> accounts = await _accountDao.find(withSummery: true);
 
     setState(() {
@@ -115,6 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
       _expense = expense;
       _accounts = accounts;
       _monthlyExpenses = monthlyExpenses;
+    });
+  }
+
+  void onAccountSelected(Account? account) {
+    setState(() {
+      _selectedAccount = account;
+
+      _fetchTransactions();
     });
   }
 
@@ -182,6 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           AccountsSlider(
             accounts: _accounts,
+            onAccountSelected: onAccountSelected,
           ),
           const SizedBox(
             height: 15,
@@ -239,9 +268,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: InkWell(
                   onTap: () {
                     setState(() {
-                     _showingIncomeOnly = !_showingIncomeOnly; // Toggle showing income
-                        _showingExpenseOnly = false; // Hide expense only
-                        _fetchTransactions();
+                      _showingIncomeOnly =
+                          !_showingIncomeOnly; // Toggle showing income
+                      _showingExpenseOnly = false; // Hide expense only
+                      _fetchTransactions();
                     });
                   },
                   child: Container(
@@ -285,9 +315,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: InkWell(
                   onTap: () {
                     setState(() {
-                     _showingExpenseOnly = !_showingExpenseOnly; // Toggle showing expense
-                        _showingIncomeOnly = false; // Hide income only
-                        _fetchTransactions();
+                      _showingExpenseOnly =
+                          !_showingExpenseOnly; // Toggle showing expense
+                      _showingIncomeOnly = false; // Hide income only
+                      _fetchTransactions();
                     });
                   },
                   child: Container(
