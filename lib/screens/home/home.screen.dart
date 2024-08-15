@@ -6,6 +6,7 @@ import 'package:fintracker/events.dart';
 import 'package:fintracker/model/account.model.dart';
 import 'package:fintracker/model/category.model.dart';
 import 'package:fintracker/model/payment.model.dart';
+import 'package:fintracker/screens/home/widgets/pie_chart.dart';
 import 'package:fintracker/screens/home/widgets/account_slider.dart';
 import 'package:fintracker/screens/home/widgets/payment_list_item.dart';
 import 'package:fintracker/screens/payment_form.screen.dart';
@@ -286,6 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          const ExpensePieChart(),
           _payments.isNotEmpty
               ? ListView.separated(
                   padding: EdgeInsets.zero,
