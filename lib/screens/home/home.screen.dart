@@ -6,6 +6,7 @@ import 'package:fintracker/events.dart';
 import 'package:fintracker/model/account.model.dart';
 import 'package:fintracker/model/category.model.dart';
 import 'package:fintracker/model/payment.model.dart';
+import 'package:fintracker/screens/home/widgets/date_picker.dart';
 import 'package:fintracker/screens/home/widgets/line_chart.dart';
 import 'package:fintracker/screens/home/widgets/pie_chart.dart';
 import 'package:fintracker/screens/home/widgets/account_slider.dart';
@@ -68,28 +69,26 @@ class _HomeScreenState extends State<HomeScreen> {
         .push(MaterialPageRoute(builder: (builder) => PaymentForm(type: type)));
   }
 
+  void _updateDateRange(DateTimeRange newRange) {
+    setState(() {
+      _range = newRange;
+      _fetchTransactions();
+    });
+  }
+
   void handleChooseDateRange() async {
-    final selected = await showDateRangePicker(
-      context: context,
-      initialDateRange: _range,
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
-    );
-    if (selected != null) {
-      setState(() {
-        _range = selected;
-        _fetchTransactions();
-      });
-    }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (builder) =>
+            CustomCalender(updateDateRange: _updateDateRange)));
   }
 
   void _fetchTransactions() async {
     List<Payment> trans;
 
     // Filter based on showing income/expense only and selected account
-    print(_selectedCategory);
-    if(_selectedCategory==null){
-      trans = await _paymentDao.find(range: _range);
+
+    if (_selectedCategory == null) {
+      trans = await _paymentDao.find(range: _range, category: _category);
     }
     if (_showingIncomeOnly) {
       trans = await _paymentDao.find(
@@ -118,12 +117,12 @@ class _HomeScreenState extends State<HomeScreen> {
       } else if (_selectedAccount != null) {
         // If no category selected, filter by account
         trans = await _paymentDao.find(
-          range: _range,
-          account: _selectedAccount // Use the selected account (optional)
-        );
-      } else  {
+            range: _range,
+            account: _selectedAccount // Use the selected account (optional)
+            );
+      } else {
         // If no filters applied, fetch all transactions (unchanged)
-        trans = await _paymentDao.find(range: _range);
+        trans = await _paymentDao.find(range: _range, category: _category);
       }
     }
 
@@ -266,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Horizontal Date picker is added to select a single date
 
           */
+          //TableEventsExample(),
           EasyInfiniteDateTimeLine(
             firstDate: DateTime(2023),
             focusDate: _focusDate,
@@ -425,12 +425,14 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const SizedBox(width: 16.0),
           FloatingActionButton(
+            heroTag: "income",
             onPressed: () => openAddPaymentPage(PaymentType.credit),
             backgroundColor: ThemeColors.success,
             child: const Icon(Icons.add),
           ),
           const SizedBox(width: 10.0),
           FloatingActionButton(
+            heroTag: "expense",
             onPressed: () => openAddPaymentPage(PaymentType.debit),
             backgroundColor: ThemeColors.error,
             child: const Icon(Icons.remove),
