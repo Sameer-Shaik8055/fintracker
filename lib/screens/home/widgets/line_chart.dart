@@ -1,4 +1,5 @@
 import 'package:fintracker/theme/colors.dart';
+import 'package:fintracker/widgets/currency.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -74,14 +75,11 @@ class ExpenseLineChart extends StatelessWidget {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(fontSize: 10);
+    
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
-      child: Text(
-        '\$${value.toInt()}',
-        style: style,
-      ),
+      child: CurrencyText(value,overflow: TextOverflow.fade,style: const TextStyle(fontSize: 10),)
     );
   }
 
