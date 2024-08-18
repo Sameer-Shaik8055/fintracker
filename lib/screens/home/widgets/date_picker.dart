@@ -31,7 +31,7 @@ class _CustomCalenderState extends State<CustomCalender> {
 
     _selectedDay = _focusedDay;
     _selectedPayments = ValueNotifier([]);
-    _fetchPaymentsForDay(_selectedDay!);
+    _fetchPaymentsForMonth(_focusedDay); // Load events for the month
   }
 
   @override
@@ -57,8 +57,7 @@ class _CustomCalenderState extends State<CustomCalender> {
     setState(() {
       // Cache the payments for each day in the range
       for (final payment in payments) {
-        final day = DateTime(payment.datetime.year, payment.datetime.month,
-            payment.datetime.day);
+        final day = DateTime(payment.datetime.year, payment.datetime.month, payment.datetime.day);
         if (_paymentCache[day] == null) {
           _paymentCache[day] = [];
         }
@@ -66,6 +65,13 @@ class _CustomCalenderState extends State<CustomCalender> {
       }
       _selectedPayments.value = payments;
     });
+  }
+
+  // Fetch payments for the entire month
+  Future<void> _fetchPaymentsForMonth(DateTime month) async {
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 0); // Last day of the month
+    await _fetchPaymentsForRange(start, end);
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -138,6 +144,7 @@ class _CustomCalenderState extends State<CustomCalender> {
             },
             onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
+              _fetchPaymentsForMonth(focusedDay); // Fetch events for the new month
             },
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
@@ -150,8 +157,7 @@ class _CustomCalenderState extends State<CustomCalender> {
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),
-                      padding: const EdgeInsets.all(
-                          6.0), // Adjust padding for increased size
+                      padding: const EdgeInsets.all(6.0), // Adjust padding for increased size
                       child: Center(
                         child: Text(
                           '${events.length}',

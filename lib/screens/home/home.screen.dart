@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
           EasyInfiniteDateTimeLine(
             firstDate: DateTime(2023),
             focusDate: _focusDate,
-            lastDate: DateTime.now(),
+            lastDate: DateTime.now(),showTimelineHeader: false,
             onDateChange: (selectedDate) {
               setState(() {
                 _focusDate = selectedDate;
