@@ -20,6 +20,12 @@ class ExpenseLineChart extends StatelessWidget {
   final Color line2Color;
   final Color betweenColor;
 
+  double getYInterval(double maxExpense) {
+    // Calculate interval
+    double step = maxExpense / 5; // Number of intervals
+    return (step / 10).ceil() * 10; // Round to nearest 10
+  }
+
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
       fontSize: 10,
@@ -75,37 +81,45 @@ class ExpenseLineChart extends StatelessWidget {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    
-
     return SideTitleWidget(
       axisSide: meta.axisSide,
-      child: CurrencyText(value,overflow: TextOverflow.fade,style: const TextStyle(fontSize: 10),)
+      child: CurrencyText(
+        value,
+        overflow: TextOverflow.fade, // Changed to ellipsis to handle overflow
+        style: const TextStyle(
+          fontSize: 10, // Adjusted font size for better visibility
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    double maxExpense = monthlyExpenses.reduce((a, b) => a > b ? a : b);
+    double interval = getYInterval(maxExpense);
+
     return AspectRatio(
       aspectRatio: 2,
       child: Padding(
         padding: const EdgeInsets.only(
-          left: 10,
+          left: 16, // Increased padding to provide more space for the Y-axis labels
           right: 18,
           top: 10,
-          bottom: 4,
+          bottom: 8, // Increased bottom padding for better spacing
         ),
         child: LineChart(
           LineChartData(
             lineTouchData: LineTouchData(
               enabled: true,
               touchTooltipData: LineTouchTooltipData(
-                //: Colors.blueGrey.withOpacity(0.8),
                 getTooltipItems: (List<LineBarSpot> touchedSpots) {
                   return touchedSpots.map((spot) {
                     return LineTooltipItem(
                       '\$${spot.y}',
                       const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     );
                   }).toList();
                 },
@@ -148,8 +162,8 @@ class ExpenseLineChart extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: leftTitleWidgets,
-                  interval: 200,
-                  reservedSize: 36,
+                  interval: interval,
+                  reservedSize: 50, // Increased reserved size for Y-axis titles
                 ),
               ),
               topTitles: const AxisTitles(
