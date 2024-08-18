@@ -24,6 +24,7 @@ class _CustomCalenderState extends State<CustomCalender> {
 
   // Cache for payments to use with eventLoader
   final Map<DateTime, List<Payment>> _paymentCache = {};
+  final Map<DateTime, List<Payment>> _paymentCache1 = {};
 
   @override
   void initState() {
@@ -40,12 +41,17 @@ class _CustomCalenderState extends State<CustomCalender> {
     super.dispose();
   }
 
+  DateTime _normalizeDate(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
   Future<void> _fetchPaymentsForDay(DateTime day) async {
+    final normalizedDay = _normalizeDate(day);
     final payments = await _paymentDao.find(
-      range: DateTimeRange(start: day, end: day),
+      range: DateTimeRange(start: normalizedDay, end: normalizedDay),
     );
     setState(() {
-      _paymentCache[day] = payments;
+      _paymentCache[normalizedDay] = payments;
       _selectedPayments.value = payments;
     });
   }
@@ -57,8 +63,8 @@ class _CustomCalenderState extends State<CustomCalender> {
     setState(() {
       // Cache the payments for each day in the range
       for (final payment in payments) {
-        final day = DateTime(payment.datetime.year, payment.datetime.month, payment.datetime.day);
-        if (_paymentCache[day] == null) {
+        final day = _normalizeDate(payment.datetime);
+        if (!_paymentCache.containsKey(day)) {
           _paymentCache[day] = [];
         }
         _paymentCache[day]!.add(payment);
@@ -67,11 +73,30 @@ class _CustomCalenderState extends State<CustomCalender> {
     });
   }
 
+  Future<void> _fetchPaymentsForRange1(DateTime start, DateTime end) async {
+    final payments = await _paymentDao.find(
+      range: DateTimeRange(start: start, end: end),
+    );
+    setState(() {
+      // Cache the payments for each day in the range
+      for (final payment in payments) {
+        final day = _normalizeDate(payment.datetime);
+        if (!_paymentCache1.containsKey(day)) {
+          _paymentCache1[day] = [];
+        }
+        _paymentCache1[day]!.add(payment);
+      }
+      _selectedPayments.value = payments;
+    });
+  }
+
   // Fetch payments for the entire month
   Future<void> _fetchPaymentsForMonth(DateTime month) async {
     final start = DateTime(month.year, month.month, 1);
-    final end = DateTime(month.year, month.month + 1, 0); // Last day of the month
-    await _fetchPaymentsForRange(start, end);
+    final end =
+        DateTime(month.year, month.month + 1, 0); // Last day of the month
+    _paymentCache1.clear();
+    await _fetchPaymentsForRange1(start, end);
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -108,7 +133,8 @@ class _CustomCalenderState extends State<CustomCalender> {
   }
 
   List<Payment> _getPaymentsForDay(DateTime day) {
-    return _paymentCache[day] ?? [];
+    final normalizedDay = _normalizeDate(day);
+    return _paymentCache1[normalizedDay] ?? [];
   }
 
   @override
@@ -144,7 +170,8 @@ class _CustomCalenderState extends State<CustomCalender> {
             },
             onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
-              _fetchPaymentsForMonth(focusedDay); // Fetch events for the new month
+              _fetchPaymentsForMonth(
+                  focusedDay); // Fetch events for the new month
             },
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
@@ -157,7 +184,8 @@ class _CustomCalenderState extends State<CustomCalender> {
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),
-                      padding: const EdgeInsets.all(6.0), // Adjust padding for increased size
+                      padding: const EdgeInsets.all(
+                          6.0), // Adjust padding for increased size
                       child: Center(
                         child: Text(
                           '${events.length}',
