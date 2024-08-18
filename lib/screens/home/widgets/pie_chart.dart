@@ -17,6 +17,7 @@ class ExpensePieChart extends StatefulWidget {
 class _ExpensePieChartState extends State<ExpensePieChart> {
   final CategoryDao _categoryDao = CategoryDao();
   List<Category> _categories = [];
+  List<int> _sectionToCategoryIndex = [];
   EventListener? _paymentEventListener;
   Category? _selectedCategory;
 
@@ -43,7 +44,18 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
 
     setState(() {
       _categories = categories;
+      _sectionToCategoryIndex = _buildSectionToCategoryIndex(categories);
     });
+  }
+
+  List<int> _buildSectionToCategoryIndex(List<Category> categories) {
+    List<int> sectionToCategoryIndex = [];
+    for (int i = 0; i < categories.length; i++) {
+      if (categories[i].expense! > 0) {
+        sectionToCategoryIndex.add(i);
+      }
+    }
+    return sectionToCategoryIndex;
   }
 
   @override
@@ -58,11 +70,12 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                 pieTouchData: PieTouchData(
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
                     if (event is FlTapUpEvent) {
-                      final touchedSection = pieTouchResponse!.touchedSection;
+                      final touchedSection = pieTouchResponse?.touchedSection;
                       if (touchedSection != null) {
-                        final categoryIndex =
-                            touchedSection.touchedSectionIndex;
+                        final sectionIndex = touchedSection.touchedSectionIndex;
+                        final categoryIndex = _sectionToCategoryIndex[sectionIndex];
                         final clickedCategory = _categories[categoryIndex];
+                        print('Selected category: ${clickedCategory.name}');
 
                         setState(() {
                           if (_selectedCategory == clickedCategory) {
@@ -87,7 +100,8 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
             )
           : const SizedBox(
               // Display a message or alternative widget when there's no data
-              height: 0, width: 0,
+              height: 0,
+              width: 0,
             ),
     );
   }
@@ -98,12 +112,20 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
 
     // Check if total expense is greater than zero
     if (totalExpense > 0) {
-      return categories.map((category) {
+      final nonZeroCategories = categories.where((category) => category.expense! > 0).toList();
+
+      return nonZeroCategories.asMap().entries.map((entry) {
+        final index = entry.key;
+        final category = entry.value;
         final percentage = (category.expense! / totalExpense) * 100;
+
+        // Debug logging to check category order and values
+        print('Category: ${category.name}, Index: $index, Percentage: $percentage');
+
         return PieChartSectionData(
           color: category.color,
           value: percentage,
-          title: percentage >5
+          title: percentage > 5
               ? '${percentage.toStringAsFixed(0)}%\n${category.expense}'
               : "",
           radius: 100,
