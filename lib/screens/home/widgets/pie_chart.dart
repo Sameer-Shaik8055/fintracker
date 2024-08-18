@@ -1,7 +1,9 @@
 import 'package:fintracker/dao/category_dao.dart';
+import 'package:fintracker/events.dart';
 import 'package:fintracker/model/category.model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:events_emitter/events_emitter.dart';
 
 class ExpensePieChart extends StatefulWidget {
   final Function(Category?) onCategorySelected;
@@ -15,11 +17,25 @@ class ExpensePieChart extends StatefulWidget {
 class _ExpensePieChartState extends State<ExpensePieChart> {
   final CategoryDao _categoryDao = CategoryDao();
   List<Category> _categories = [];
+  EventListener? _paymentEventListener;
+  Category? _selectedCategory;
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+
+    // Add event listener for payment updates
+    _paymentEventListener = globalEvent.on("payment_update", (data) {
+      debugPrint("payments are changed, updating pie chart");
+      _fetchData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _paymentEventListener?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchData() async {
@@ -33,7 +49,6 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
   @override
   Widget build(BuildContext context) {
     final sections = _buildPieChartSections(_categories);
-    bool _clicked = false;
 
     return AspectRatio(
       aspectRatio: 1.5,
@@ -45,17 +60,19 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                     if (event is FlTapUpEvent) {
                       final touchedSection = pieTouchResponse!.touchedSection;
                       if (touchedSection != null) {
-                        // Access the category information from the touchedSection
                         final categoryIndex =
                             touchedSection.touchedSectionIndex;
                         final clickedCategory = _categories[categoryIndex];
 
-                        _clicked = !_clicked;
-                        if (_clicked) {
-                          widget.onCategorySelected(clickedCategory);
-                        } else {
-                          widget.onCategorySelected(null);
-                        }
+                        setState(() {
+                          if (_selectedCategory == clickedCategory) {
+                            _selectedCategory = null; // Clear filter
+                            widget.onCategorySelected(null);
+                          } else {
+                            _selectedCategory = clickedCategory; // Set filter
+                            widget.onCategorySelected(clickedCategory);
+                          }
+                        });
                       }
                     }
                   },
