@@ -63,7 +63,7 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
     final sections = _buildPieChartSections(_categories);
 
     return AspectRatio(
-      aspectRatio: 1.5,
+      aspectRatio: sections.isNotEmpty ? 1.5 : 100,
       child: sections.isNotEmpty
           ? PieChart(
               PieChartData(
@@ -73,9 +73,9 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
                       final touchedSection = pieTouchResponse?.touchedSection;
                       if (touchedSection != null) {
                         final sectionIndex = touchedSection.touchedSectionIndex;
-                        final categoryIndex = _sectionToCategoryIndex[sectionIndex];
+                        final categoryIndex =
+                            _sectionToCategoryIndex[sectionIndex];
                         final clickedCategory = _categories[categoryIndex];
-                        print('Selected category: ${clickedCategory.name}');
 
                         setState(() {
                           if (_selectedCategory == clickedCategory) {
@@ -112,15 +112,14 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
 
     // Check if total expense is greater than zero
     if (totalExpense > 0) {
-      final nonZeroCategories = categories.where((category) => category.expense! > 0).toList();
+      final nonZeroCategories =
+          categories.where((category) => category.expense! > 0).toList();
 
       return nonZeroCategories.asMap().entries.map((entry) {
-        final index = entry.key;
         final category = entry.value;
         final percentage = (category.expense! / totalExpense) * 100;
 
         // Debug logging to check category order and values
-        print('Category: ${category.name}, Index: $index, Percentage: $percentage');
 
         return PieChartSectionData(
           color: category.color,

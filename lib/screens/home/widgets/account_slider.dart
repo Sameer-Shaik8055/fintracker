@@ -41,12 +41,10 @@ class _AccountSlider extends State<AccountsSlider> {
               Account account = widget.accounts[index];
               return InkWell(
                 onTap: () {
-                  print(account.name);
                   _clicked = !_clicked;
-                  if(_clicked){
+                  if (_clicked) {
                     widget.onAccountSelected(account);
-                  }
-                  else{
+                  } else {
                     widget.onAccountSelected(null);
                   }
                 },

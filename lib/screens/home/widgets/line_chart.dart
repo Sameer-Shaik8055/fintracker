@@ -98,7 +98,7 @@ class ExpenseLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (monthlyExpenses.isEmpty) {
-      return Center(child: Text('No expenses data available'));
+      return const Center(child: Text('No expenses data available'));
     }
 
     double maxExpense = monthlyExpenses.reduce((a, b) => a > b ? a : b);
@@ -108,7 +108,8 @@ class ExpenseLineChart extends StatelessWidget {
       aspectRatio: 2,
       child: Padding(
         padding: const EdgeInsets.only(
-          left: 16, // Increased padding to provide more space for the Y-axis labels
+          left:
+              16, // Increased padding to provide more space for the Y-axis labels
           right: 18,
           top: 10,
           bottom: 8, // Increased bottom padding for better spacing
