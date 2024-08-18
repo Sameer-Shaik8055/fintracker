@@ -21,9 +21,11 @@ class ExpenseLineChart extends StatelessWidget {
   final Color betweenColor;
 
   double getYInterval(double maxExpense) {
-    // Calculate interval
     double step = maxExpense / 5; // Number of intervals
-    return (step / 10).ceil() * 10; // Round to nearest 10
+    double interval = (step / 10).ceil() * 10; // Round to nearest 10
+
+    // Ensure interval is not zero
+    return interval > 0 ? interval : 10; // Default to 10 if interval is zero
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
@@ -95,6 +97,10 @@ class ExpenseLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (monthlyExpenses.isEmpty) {
+      return Center(child: Text('No expenses data available'));
+    }
+
     double maxExpense = monthlyExpenses.reduce((a, b) => a > b ? a : b);
     double interval = getYInterval(maxExpense);
 

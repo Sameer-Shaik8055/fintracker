@@ -103,10 +103,12 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
         return PieChartSectionData(
           color: category.color,
           value: percentage,
-          title: '${percentage.toStringAsFixed(0)}%\n${category.expense}',
+          title: percentage >5
+              ? '${percentage.toStringAsFixed(0)}%\n${category.expense}'
+              : "",
           radius: 100,
           titleStyle: const TextStyle(
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
