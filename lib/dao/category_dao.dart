@@ -52,7 +52,6 @@ class CategoryDao {
     }
   }
 
-
   Future<int> delete(int id) async {
     final db = await getDBInstance();
     var result = await db.delete("categories", where: 'id = ?', whereArgs: [id]);
@@ -65,5 +64,18 @@ class CategoryDao {
       "categories",
     );
     return result;
+  }
+
+  Future<Category?>? findCategoryById(int id) async{
+    final db = await getDBInstance();
+    final List<Map<String, dynamic>> categories = await db.query(
+      'categories',
+      where: 'id = ?',
+      whereArgs: [id], // Assuming you want to filter for true
+    );
+    if(categories.isNotEmpty) {
+      return Category.fromJson(categories[0]);
+    }
+    return null;
   }
 }

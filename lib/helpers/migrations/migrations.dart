@@ -18,8 +18,9 @@ void v1(Database database) async {
       "category INTEGER,"
       "amount REAL,"
       "type TEXT,"
-      "datetime DATETIME"
-      ")");
+      "datetime DATETIME,"
+      "autoCategorizationEnabled BOOLEAN DEFAULT FALSE"
+      ");");
 
   await database.execute("CREATE TABLE categories ("
       "id INTEGER PRIMARY KEY AUTOINCREMENT,"

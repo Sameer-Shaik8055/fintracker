@@ -22,8 +22,15 @@ Future<Database> getDBInstance() async {
           onUpgrade: onUpgrade
       ));
     } else {
+
       String databasesPath = await getDatabasesPath();
       String dbPath = join(databasesPath, 'database.db');
+      // Check if database file exists
+      final exists = await File(dbPath).exists();
+      if (!exists) {
+        print('Database file does not exist. Creating...');
+        // Create the database file if it doesn't exist
+      }
       db = await openDatabase(dbPath, version: 1, onCreate: onCreate, onUpgrade: onUpgrade);
     }
 

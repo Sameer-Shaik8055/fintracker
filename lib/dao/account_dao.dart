@@ -62,4 +62,18 @@ class AccountDao {
     await db.delete("payments", where: "account = ?", whereArgs:[id]);
     return result;
   }
+
+
+  Future<Account?>? findCategoryById(int id) async{
+    final db = await getDBInstance();
+    final List<Map<String, dynamic>> categories = await db.query(
+      'accounts',
+      where: 'id = ?',
+      whereArgs: [id], // Assuming you want to filter for true
+    );
+    if(categories.isNotEmpty) {
+      return Account.fromJson(categories[0]);
+    }
+    return null;
+  }
 }
