@@ -50,6 +50,7 @@ class _PaymentForm extends State<PaymentForm>{
   double _amount=0;
   PaymentType _type= PaymentType.credit;
   DateTime _datetime = DateTime.now();
+  bool _autoCategorizationEnabled = false;
 
   loadAccounts(){
     _accountDao.find().then((value){
@@ -81,6 +82,7 @@ class _PaymentForm extends State<PaymentForm>{
         _type = widget.payment!.type;
         _datetime = widget.payment!.datetime;
         _initialised = true;
+        _autoCategorizationEnabled = widget.payment!.autoCategorizationEnabled;
       });
     }
     else
@@ -136,6 +138,14 @@ class _PaymentForm extends State<PaymentForm>{
   }
 
   void handleSaveTransaction(context) async{
+
+    debugPrint("$autoCategorize  ${_category?.id}");
+    if(autoCategorize && _category?.id == 10){
+      debugPrint("Inside Auto Categotrization");
+      final index = await _paymentDao.findPaymentCategoryByTitle(_title);
+      _category = _categories[index];
+    }
+
     Payment payment = Payment(id: _id,
         account: _account!,
         category: _category!,
@@ -143,7 +153,8 @@ class _PaymentForm extends State<PaymentForm>{
         type: _type,
         datetime: _datetime,
         title: _title,
-        description: _description
+        description: _description,
+        autoCategorizationEnabled: _autoCategorizationEnabled
     );
     await _paymentDao.upsert(payment);
     if (widget.onClose != null) {
@@ -177,6 +188,8 @@ class _PaymentForm extends State<PaymentForm>{
 
     super.dispose();
   }
+
+  bool autoCategorize = false;
 
   @override
   Widget build(BuildContext context) {
@@ -527,7 +540,10 @@ class _PaymentForm extends State<PaymentForm>{
                                                 highlightElevation: 0,
                                                 disabledElevation: 0,
                                                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                                onPressed: (){
+                                                onPressed: () async{
+                                                  if(category.name.toLowerCase() == "miscellaneous"){
+                                                    autoCategorize= true;
+                                                  }
                                                   setState(() {
                                                     _category = category;
                                                   });
@@ -552,10 +568,24 @@ class _PaymentForm extends State<PaymentForm>{
                                   })
 
                               ),
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Checkbox(activeColor: Colors.green,checkColor: Colors.white,value: _autoCategorizationEnabled, onChanged: (val){
+                                  print(val);
+                                  setState(() {
+                                    _autoCategorizationEnabled = val!;
+                                  });
+                                },),
+                                const Text("Use it for Auto Categorization"),
+                              ],
                             )
                           ],
                         ) ,
-                      )
+                      ),
                   )
               ),
               Container(

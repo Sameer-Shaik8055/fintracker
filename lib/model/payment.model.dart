@@ -15,6 +15,7 @@ class Payment {
   DateTime datetime;
   String title;
   String description;
+  bool autoCategorizationEnabled;
 
   Payment({
     this.id,
@@ -24,7 +25,8 @@ class Payment {
     required this.type,
     required this.datetime,
     required this.title,
-    required this.description
+    required this.description,
+    required this.autoCategorizationEnabled
   });
 
 
@@ -39,6 +41,7 @@ class Payment {
       type: data["type"] == "CR" ? PaymentType.credit : PaymentType
           .debit,
       datetime: DateTime.parse(data["datetime"]),
+        autoCategorizationEnabled: data["autoCategorizationEnabled"]
     );
   }
 
@@ -51,5 +54,6 @@ class Payment {
     "amount": amount,
     "datetime": DateFormat('yyyy-MM-dd kk:mm:ss').format(datetime),
     "type": type == PaymentType.credit ? "CR": "DR",
+    "autoCategorizationEnabled": autoCategorizationEnabled,
   };
 }

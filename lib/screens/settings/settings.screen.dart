@@ -9,6 +9,9 @@ import 'package:fintracker/widgets/dialog/loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:fintracker/screens/settings/adduserrules.dart';
+
+import '../../dao/payment_dao.dart';
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -17,6 +20,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+
+  final PaymentDao _paymentDao = PaymentDao();
+  bool isCategorizing = false;
+  bool isCategorizingUsingRules = false;
+
   @override
   void initState() {
     super.initState();
@@ -200,6 +208,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
             //   title:  Text('Reset', style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
             //   subtitle:  Text("Delete all the data",style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
             // ),
+
+            ListTile(
+              dense: true,
+              onTap:() async {
+
+                setState(() {
+                  isCategorizing = true;
+                });
+
+                int count = await _paymentDao.updateMiscellanousCategories();
+
+                //Categotization Result SnackBar
+                if(count == 0){
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No Payment left to categorize"),),);
+                }else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        "Successfully Categorized $count Payments"),),);
+                }
+
+                setState(() {
+                  isCategorizing = false;
+                });
+              },
+              leading: CircleAvatar(
+                  child: isCategorizing ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ) : const Icon(Icons.category,)
+              ),
+              title:  Text('Categorize Miscellaneous Payments', style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
+              subtitle:  Text("Auto Categorize all Miscellaneous Category Payments",style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
+
+            ),
+
+            ListTile(
+              dense: true,
+              onTap:() async {
+
+                setState(() {
+                  isCategorizingUsingRules = true;
+                });
+
+                int count = await _paymentDao.categorizeUsingRules();
+
+
+                //Categotization Result SnackBar
+                if(count == 0){
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No Payment left to categorize"),),);
+                }else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        "Successfully Categorized $count Payments"),),);
+                }
+
+                setState(() {
+                  isCategorizingUsingRules = false;
+                });
+              },
+              leading: CircleAvatar(
+                  child: isCategorizingUsingRules ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ) : const Icon(Icons.category,)
+              ),
+              title:  Text('Categorize Payments using Rules', style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
+              subtitle:  Text("Auto Categorize Payments using rules",style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
+
+            ),
+
+            ListTile(
+              dense: true,
+              onTap:() async {
+                Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>AddUserSettingsScreen(),),);
+              },
+              leading: CircleAvatar(
+                  child: const Icon(Icons.category,)
+              ),
+              title:  Text('Set Categorization Rules', style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
+              subtitle:  Text("Set Categorization Rules for Payments with Miscellanous Category",style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
+
+            ),
+
           ],
         )
     );
