@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class MainScreen extends StatefulWidget{
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>{
+class _MainScreenState extends State<MainScreen> {
   final PageController _controller = PageController(keepPage: true);
   int _selected = 0;
 
@@ -22,15 +22,16 @@ class _MainScreenState extends State<MainScreen>{
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AppCubit, AppState>(
-      builder: (context, state){
+      builder: (context, state) {
         AppCubit cubit = context.read<AppCubit>();
-        if(cubit.state.currency == null || cubit.state.username == null){
+        if (cubit.state.currency == null || cubit.state.username == null) {
           return OnboardScreen();
         }
-        return  Scaffold(
+        return Scaffold(
           body: PageView(
             controller: _controller,
             physics: const NeverScrollableScrollPhysics(),
@@ -40,7 +41,7 @@ class _MainScreenState extends State<MainScreen>{
               CategoriesScreen(),
               SettingsScreen()
             ],
-            onPageChanged: (int index){
+            onPageChanged: (int index) {
               setState(() {
                 _selected = index;
               });
@@ -49,18 +50,37 @@ class _MainScreenState extends State<MainScreen>{
           bottomNavigationBar: NavigationBar(
             selectedIndex: _selected,
             destinations: const [
-              NavigationDestination(icon: Icon(Symbols.home, fill: 1,), label: "Home"),
-              NavigationDestination(icon: Icon(Symbols.wallet, fill: 1,), label: "Accounts"),
-              NavigationDestination(icon: Icon(Symbols.category, fill: 1,), label: "Categories"),
-              NavigationDestination(icon: Icon(Symbols.settings, fill: 1,), label: "Settings"),
+              NavigationDestination(
+                  icon: Icon(
+                    Symbols.home,
+                    fill: 1,
+                  ),
+                  label: "Home"),
+              NavigationDestination(
+                  icon: Icon(
+                    Symbols.wallet,
+                    fill: 1,
+                  ),
+                  label: "Accounts"),
+              NavigationDestination(
+                  icon: Icon(
+                    Symbols.category,
+                    fill: 1,
+                  ),
+                  label: "Categories"),
+              NavigationDestination(
+                  icon: Icon(
+                    Symbols.settings,
+                    fill: 1,
+                  ),
+                  label: "Settings"),
             ],
-            onDestinationSelected: (int selected){
-                _controller.jumpToPage(selected);
+            onDestinationSelected: (int selected) {
+              _controller.jumpToPage(selected);
             },
           ),
         );
       },
     );
-
   }
 }

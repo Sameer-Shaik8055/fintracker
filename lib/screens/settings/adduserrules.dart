@@ -1,12 +1,10 @@
-import 'package:fintracker/dao/category_dao.dart';
 import 'package:fintracker/helpers/sharedpreferneceshelper.dart';
 import 'package:fintracker/screens/settings/newrulescreen.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/category.model.dart';
-import '../../widgets/dialog/category_form.dialog.dart';
-
 class AddUserSettingsScreen extends StatefulWidget {
+  const AddUserSettingsScreen({super.key});
+
   @override
   State<AddUserSettingsScreen> createState() => _AddUserSettingsScreenState();
 }
@@ -21,7 +19,7 @@ class _AddUserSettingsScreenState extends State<AddUserSettingsScreen> {
     setData();
   }
 
-  setData(){
+  setData() {
     listOfCategoryRules = SharedPreferncesHelper.getListOfCategoryRules();
     listOfUserRules = SharedPreferncesHelper.getListOfUserRules();
     setState(() {});
@@ -42,20 +40,36 @@ class _AddUserSettingsScreenState extends State<AddUserSettingsScreen> {
               itemBuilder: (context, index) {
                 String title = listOfUserRules[index];
                 return ListTile(
-                  title:  Text(title, style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
-                  subtitle:  Text("Category : ${listOfCategoryRules[title]}",style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
-                  trailing: IconButton(icon: Icon(Icons.delete,color: Colors.red,),onPressed: (){
-                    SharedPreferncesHelper.remove(title);
-                    setData();
-                  },),
+                  title: Text(title,
+                      style: Theme.of(context).textTheme.bodyMedium?.merge(
+                          const TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 15))),
+                  subtitle: Text("Category : ${listOfCategoryRules[title]}",
+                      style: Theme.of(context).textTheme.bodySmall?.apply(
+                          color: Colors.grey, overflow: TextOverflow.ellipsis)),
+                  trailing: IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      SharedPreferncesHelper.remove(title);
+                      setData();
+                    },
+                  ),
                 );
               })
-          : Center(
+          : const Center(
               child: Text("No Rules Defined Yet"),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=> NewRulesScreen(),),),
-        child: Icon(Icons.add),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const NewRulesScreen(),
+          ),
+        ),
+        child: const Icon(Icons.add),
       ),
     );
   }
