@@ -11,14 +11,7 @@ void main() async {
   await getDBInstance();
   AppState appState = await AppState.getState();
 
-  runApp(
-      MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_)=>AppCubit(appState))
-          ],
-          child: const App()
-      )
-  );
+  runApp(MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => AppCubit(appState))],
+      child: const App()));
 }
-
-

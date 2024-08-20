@@ -10,16 +10,21 @@ class CategoryDao {
     return result;
   }
 
-  Future<List<Category>> find({ bool withSummery = true }) async {
+  Future<List<Category>> find({bool withSummery = true}) async {
     final db = await getDBInstance();
 
     List<Map<String, dynamic>> result;
-    if(withSummery){
+    if (withSummery) {
       String fields = [
-        "c.id","c.name","c.icon","c.color", "c.budget",
+        "c.id",
+        "c.name",
+        "c.icon",
+        "c.color",
+        "c.budget",
         "SUM(CASE WHEN t.type='DR' AND t.category=c.id THEN t.amount END) as expense"
       ].join(",");
-      DateTime from = DateTime(DateTime.now().year, DateTime.now().month,1,0,0);
+      DateTime from =
+          DateTime(DateTime.now().year, DateTime.now().month, 1, 0, 0);
       DateTime to = DateTime.now().add(const Duration(days: 1));
       DateFormat formatter = DateFormat("yyyy-MM-dd HH:mm");
       String sql = "SELECT $fields FROM categories c "
@@ -27,9 +32,11 @@ class CategoryDao {
           "GROUP BY c.id ";
       result = await db.rawQuery(sql);
     } else {
-      result = await db.query("categories",);
+      result = await db.query(
+        "categories",
+      );
     }
-    List<Category> categories =[];
+    List<Category> categories = [];
     if (result.isNotEmpty) {
       categories = result.map((item) => Category.fromJson(item)).toList();
     }
@@ -39,13 +46,14 @@ class CategoryDao {
   Future<int> update(Category category) async {
     final db = await getDBInstance();
 
-    var result = await db.update("categories", category.toJson(), where: "id = ?", whereArgs: [category.id]);
+    var result = await db.update("categories", category.toJson(),
+        where: "id = ?", whereArgs: [category.id]);
 
     return result;
   }
 
   Future<int> upsert(Category category) {
-    if(category.id !=null){
+    if (category.id != null) {
       return update(category);
     } else {
       return create(category);
@@ -54,7 +62,8 @@ class CategoryDao {
 
   Future<int> delete(int id) async {
     final db = await getDBInstance();
-    var result = await db.delete("categories", where: 'id = ?', whereArgs: [id]);
+    var result =
+        await db.delete("categories", where: 'id = ?', whereArgs: [id]);
     return result;
   }
 
@@ -66,14 +75,14 @@ class CategoryDao {
     return result;
   }
 
-  Future<Category?>? findCategoryById(int id) async{
+  Future<Category?>? findCategoryById(int id) async {
     final db = await getDBInstance();
     final List<Map<String, dynamic>> categories = await db.query(
       'categories',
       where: 'id = ?',
       whereArgs: [id], // Assuming you want to filter for true
     );
-    if(categories.isNotEmpty) {
+    if (categories.isNotEmpty) {
       return Category.fromJson(categories[0]);
     }
     return null;
