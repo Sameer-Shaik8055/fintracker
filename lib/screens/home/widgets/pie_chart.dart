@@ -1,14 +1,21 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:events_emitter/events_emitter.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+
 import 'package:fintracker/dao/category_dao.dart';
 import 'package:fintracker/events.dart';
 import 'package:fintracker/model/category.model.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:events_emitter/events_emitter.dart';
 
 class ExpensePieChart extends StatefulWidget {
   final Function(Category?) onCategorySelected;
+  final DateTimeRange range;
 
-  const ExpensePieChart({super.key, required this.onCategorySelected});
+  const ExpensePieChart({
+    Key? key,
+    required this.onCategorySelected,
+    required this.range,
+  }) : super(key: key);
 
   @override
   State<ExpensePieChart> createState() => _ExpensePieChartState();
@@ -40,7 +47,9 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
   }
 
   Future<void> _fetchData() async {
-    List<Category> categories = await _categoryDao.find(withSummery: true);
+    List<Category> categories =
+        await _categoryDao.find(withSummery: true, range: widget.range);
+    print(widget.range);
 
     setState(() {
       _categories = categories;

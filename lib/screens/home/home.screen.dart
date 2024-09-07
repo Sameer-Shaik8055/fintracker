@@ -380,7 +380,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           ExpensePieChart(
+            key: ValueKey<DateTimeRange>(_range),
             onCategorySelected: onCategorySelected,
+            range: _range,
           ),
           ExpenseLineChart(
             monthlyExpenses: _monthlyExpenses,
