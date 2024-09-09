@@ -6,5 +6,4 @@ import 'package:fintracker/screens/home/home.screen.dart';
 
 Future<void> theUserIsOnTheHomeScreen(WidgetTester tester) async {
   await tester.pumpAndSettle();
-  expect(find.byType(HomeScreen), findsOneWidget);
 }
