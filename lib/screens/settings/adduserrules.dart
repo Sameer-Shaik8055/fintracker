@@ -25,8 +25,28 @@ class _AddUserSettingsScreenState extends State<AddUserSettingsScreen> {
     setState(() {});
   }
 
+  List listOfDefaultRules = [
+    {
+      "title": "Transportation",
+      "items": ["Toll Charges", "Motors"]
+    },
+    {
+      "title": "Food",
+      "items": ["Food", "Swiggy", "Zomato", "Bistro", "Restaurant"]
+    },
+    {
+      "title": "Medical",
+      "items": ["Pharmacy", "Diagnostics"],
+    },
+    {
+      "title": "Entertainment",
+      "items": ["BookMyShow"]
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -34,34 +54,109 @@ class _AddUserSettingsScreenState extends State<AddUserSettingsScreen> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ),
-      body: listOfUserRules.isNotEmpty
-          ? ListView.builder(
-              itemCount: listOfUserRules.length,
-              itemBuilder: (context, index) {
-                String title = listOfUserRules[index];
-                return ListTile(
-                  title: Text(title,
-                      style: Theme.of(context).textTheme.bodyMedium?.merge(
-                          const TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 15))),
-                  subtitle: Text("Category : ${listOfCategoryRules[title]}",
-                      style: Theme.of(context).textTheme.bodySmall?.apply(
-                          color: Colors.grey, overflow: TextOverflow.ellipsis)),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                    ),
-                    onPressed: () {
-                      SharedPreferncesHelper.remove(title);
-                      setData();
-                    },
-                  ),
-                );
-              })
-          : const Center(
-              child: Text("No Rules Defined Yet"),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 15,
             ),
+            Container(
+              width: size.width * 0.9,
+              child: Text(
+                "Default Rules",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              child: Card(
+                elevation: 5,
+                child: ListView.builder(
+                    itemCount: listOfDefaultRules.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final rule = listOfDefaultRules[index];
+                      return Column(
+                        children: [
+                          Theme(
+                            data: Theme.of(context)
+                                .copyWith(dividerColor: Colors.transparent),
+                            child: ExpansionTile(
+                              expandedAlignment: Alignment.centerLeft,
+                              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                              title: Text(
+                                rule['title'],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+                              ),
+                              children: (rule['items'] as List)
+                                  .map(
+                                    (item) => Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(item,),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                          listOfDefaultRules.length-1 != index ? Divider(
+                            color: Colors.grey,
+                            thickness: 1.5,
+                          ) : SizedBox(),
+                        ],
+                      );
+                    }),
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              width: size.width * 0.9,
+              child: Text(
+                "Your Rules",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              child: Card(
+                elevation: 5,
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: listOfUserRules.length,
+                    itemBuilder: (context, index) {
+                      String title = listOfUserRules[index];
+                      return ListTile(
+                        title: Text(title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.merge(const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15))),
+                        subtitle: Text(
+                            "Category : ${listOfCategoryRules[title]}",
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                                color: Colors.grey,
+                                overflow: TextOverflow.ellipsis)),
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            SharedPreferncesHelper.remove(title);
+                            setData();
+                          },
+                        ),
+                      );
+                    }),
+              ),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
