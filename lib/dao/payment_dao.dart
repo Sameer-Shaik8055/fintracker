@@ -215,6 +215,7 @@ class PaymentDao {
       "BookMyShow"
     ];
 
+
     Map<String, dynamic> mapOfCategory =
         SharedPreferncesHelper.getListOfCategoryRules();
     List<String> getUserRules = SharedPreferncesHelper.getListOfUserRules();
