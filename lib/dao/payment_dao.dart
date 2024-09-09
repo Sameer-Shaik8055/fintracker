@@ -229,10 +229,15 @@ class PaymentDao {
 
     final upperTitles = titles.map((title) => title.toUpperCase()).toList();
 
+    String whereClause = upperTitles.map((title) => 'UPPER(title) LIKE ?').join(' OR ');
+
+    List<String> whereArgs = upperTitles.map((title) => '%$title%').toList();
+    whereArgs.add('10');
+
     final List<Map<String, dynamic>> maps = await db.query(
       'payments',
-      where: 'UPPER(title) IN ($placeholders) AND category = ?',
-      whereArgs: [...upperTitles, 10],
+      where: '($whereClause) AND category = ?',
+      whereArgs: whereArgs,
     );
 
     int count = 0;
@@ -241,7 +246,7 @@ class PaymentDao {
       String title = payment['title'].toLowerCase();
 
       //Transportation Category
-      if (title == "toll charges" || title == "motors") {
+      if (title.contains("toll charges") || title.contains("motors")) {
         Category? category = await categoryDao.findCategoryById(2);
         Account? account =
             await accountDao.findCategoryById(payment['account']);
@@ -264,11 +269,11 @@ class PaymentDao {
       }
 
       //Food Category
-      else if (title == "food" ||
-          title == "swiggy" ||
-          title == "zomato" ||
-          title == "bistro" ||
-          title == "restaurant") {
+      else if (title.contains("food") ||
+          title.contains("swiggy") ||
+          title.contains("zomato") ||
+          title.contains("bistro") ||
+          title.contains("restaurant")) {
         Category? category = await categoryDao.findCategoryById(3);
         Account? account =
             await accountDao.findCategoryById(payment['account']);
@@ -291,7 +296,7 @@ class PaymentDao {
       }
 
       //Medical and Healthcare Category
-      else if (title == "pharmacy" || title == "diagnostics") {
+      else if (title.contains("pharmacy") || title.contains("diagnostics")) {
         Category? category = await categoryDao.findCategoryById(6);
         Account? account =
             await accountDao.findCategoryById(payment['account']);
@@ -311,7 +316,7 @@ class PaymentDao {
           Payment.fromJson(updatedMap),
         );
         count++;
-      } else if (title == "bookmyshow") {
+      } else if (title.contains("bookmyshow")) {
         Category? category = await categoryDao.findCategoryById(9);
         Account? account =
             await accountDao.findCategoryById(payment['account']);
