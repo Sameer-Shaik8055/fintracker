@@ -245,7 +245,7 @@ class PaymentDao {
 
     for (Map<String, dynamic> payment in maps) {
       String title = payment['title'].toLowerCase();
-
+      print(payment);
       //Transportation Category
       if (title.contains("toll charges") || title.contains("motors")) {
         Category? category = await categoryDao.findCategoryById(2);
@@ -257,12 +257,13 @@ class PaymentDao {
           "description": payment['description'],
           "account": account!.toJson(),
           "category": category!.toJson(),
-          "amount": payment['account'].toDouble(),
+          "amount": payment['amount'].toDouble(),
           "type": payment['type'],
           "datetime": payment['datetime'],
           "autoCategorizationEnabled":
               payment['autoCategorizationEnabled'] == 1 ? true : false
         };
+        print(updatedMap);
         await upsert(
           Payment.fromJson(updatedMap),
         );
