@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../theme/colors.dart';
 
-class PaymentListItem extends StatelessWidget{
+class PaymentListItem extends StatelessWidget {
   final Payment payment;
   final VoidCallback onTap;
-  const PaymentListItem({super.key, required this.payment, required this.onTap});
+  const PaymentListItem(
+      {super.key, required this.payment, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    bool isCredit = payment.type == PaymentType.credit ;
+    bool isCredit = payment.type == PaymentType.credit;
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       onTap: onTap,
@@ -22,22 +23,33 @@ class PaymentListItem extends StatelessWidget{
             borderRadius: BorderRadius.circular(25),
             color: payment.category.color.withOpacity(0.1),
           ),
-          child:  Icon( payment.category.icon, size: 22, color: payment.category.color,)
+          child: Icon(
+            payment.category.icon,
+            size: 22,
+            color: payment.category.color,
+          )),
+      title: Text(
+        payment.category.name,
+        style: Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.merge(const TextStyle(fontWeight: FontWeight.w500)),
       ),
-      title: Text(payment.category.name, style: Theme.of(context).textTheme.bodyMedium?.merge(const TextStyle(fontWeight: FontWeight.w500)),),
       subtitle: Text.rich(
         TextSpan(
             children: [
-              TextSpan(text: (DateFormat("dd MMM yyyy, HH:mm").format(payment.datetime))),
+              TextSpan(
+                  text: (DateFormat("dd MMM yyyy, HH:mm")
+                      .format(payment.datetime))),
             ],
-            style: Theme.of(context).textTheme.bodySmall?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)
-        ),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.apply(color: Colors.grey, overflow: TextOverflow.ellipsis)),
       ),
-      trailing: CurrencyText(
-          isCredit? payment.amount : -payment.amount,
-          style: Theme.of(context).textTheme.bodyMedium?.apply(color: isCredit? ThemeColors.success:ThemeColors.error)
-      ),
-    ) ;
+      trailing: CurrencyText(isCredit ? payment.amount : -payment.amount,
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+              color: isCredit ? ThemeColors.success : ThemeColors.error)),
+    );
   }
-
 }
