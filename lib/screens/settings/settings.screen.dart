@@ -43,57 +43,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
         body: ListView(
           children: [
             ListTile(
+              key: const Key('settings_name_option'),
               dense: true,
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      TextEditingController controller = TextEditingController(
-                          text: context.read<AppCubit>().state.username);
-                      return AlertDialog(
-                        title: const Text(
-                          "Profile",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 18),
-                        ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "What should we call you?",
-                              style: theme.textTheme.bodyLarge!.apply(
-                                  color: ColorHelper.darken(
-                                      theme.textTheme.bodyLarge!.color!),
-                                  fontWeightDelta: 1),
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            TextFormField(
-                              controller: controller,
-                              decoration: InputDecoration(
-                                  label: const Text("Name"),
-                                  hintText: "Enter your name",
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 15)),
-                            )
-                          ],
-                        ),
-                        actions: [
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: AppButton(
-                                onPressed: () {
-                                  if (controller.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content:
-                                                Text("Please enter name")));
+              onTap: (){
+                showDialog(context: context, builder: (context){
+                  TextEditingController controller = TextEditingController(text: context.read<AppCubit>().state.username);
+                  return AlertDialog(
+                    title: const Text("Profile", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("What should we call you?", style: theme.textTheme.bodyLarge!.apply(color: ColorHelper.darken(theme.textTheme.bodyLarge!.color!), fontWeightDelta: 1),),
+                        const SizedBox(height: 15,),
+                        TextFormField(
+                          key: const Key('name_input'),
+                          controller: controller,
+                          decoration: InputDecoration(
+                              label: const Text("Name"),
+                              hintText: "Enter your name",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15)
+                          ),
+                        )
+                      ],
+                    ),
+                    actions: [
+                      Row(
+                        children: [
+                          Expanded(
+                              child: AppButton(
+                                onPressed: (){
+                                  if(controller.text.isEmpty){
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter name")));
+
                                   } else {
                                     context
                                         .read<AppCubit>()
@@ -123,6 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }),
             ),
             ListTile(
+              key: const Key('settings_currency_option'),
               dense: true,
               onTap: () {
                 showCurrencyPicker(
@@ -151,6 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }),
             ),
             ListTile(
+              key: const Key('settings_export_option'),
               dense: true,
               onTap: () async {
                 ConfirmModal.showConfirmDialog(context,
@@ -188,6 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Colors.grey, overflow: TextOverflow.ellipsis)),
             ),
             ListTile(
+              key: const Key('import_confirm_button'),
               dense: true,
               onTap: () async {
                 await FilePicker.platform.pickFiles(

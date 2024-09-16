@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AppState {
-  late String? username;
+class AppState{
+  late String? username = "";
   late int themeColor;
   late String? currency;
 

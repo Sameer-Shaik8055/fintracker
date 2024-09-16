@@ -11,8 +11,8 @@ class ProfileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     AppCubit cubit = context.read<AppCubit>();
-    TextEditingController controller =
-        TextEditingController(text: cubit.state.username);
+   TextEditingController controller = TextEditingController(text: cubit.state.username ?? '');
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -20,32 +20,14 @@ class ProfileWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.account_balance_wallet,
-                size: 70,
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Text(
-                "Hi! welcome to Fintracker",
-                style: theme.textTheme.headlineMedium!.apply(
-                    color: theme.colorScheme.primary, fontWeightDelta: 1),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Text(
-                "What should we call you?",
-                style: theme.textTheme.bodyLarge!.apply(
-                    color:
-                        ColorHelper.darken(theme.textTheme.bodyLarge!.color!),
-                    fontWeightDelta: 1),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
+              const Icon(Icons.account_balance_wallet, size: 70,key: Key('wallet_icon'),),
+              const SizedBox(height: 25,),
+              Text("Hi! welcome to Fintracker", style: theme.textTheme.headlineMedium!.apply(color: theme.colorScheme.primary, fontWeightDelta: 1),),
+              const SizedBox(height: 15,),
+              Text("What should we call you?", style: theme.textTheme.bodyLarge!.apply(color: ColorHelper.darken(theme.textTheme.bodyLarge!.color!), fontWeightDelta: 1),),
+              const SizedBox(height: 25,),
               TextFormField(
+                key: const Key('nameTextField'),
                 controller: controller,
                 decoration: InputDecoration(
                     filled: true,
@@ -60,10 +42,10 @@ class ProfileWidget extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          if (controller.text.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Please enter your name")));
+        key: const Key('next_button'),
+        onPressed: (){
+          if(controller.text.isEmpty){
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your name")));
           } else {
             cubit.updateUsername(controller.text).then((value) {
               onGetStarted();
